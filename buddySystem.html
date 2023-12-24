@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buddy System</title>
+
+    <link href="table.css" rel="stylesheet">
+
+    <style>
+        .root{
+            margin-left: 50px;
+            margin-top: 50px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="root">
+        <button onclick="back()">返回到上一页</button>
+        <h2>伙伴系统</h2>
+        <div>当前内存空间大小:<span id="current-mem-size" style="color: red;"></span></div>
+        <div>
+            <div>设定内存空间大小:</div>
+            <input type="tel" minlength="1" maxlength="5" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')" placeholder="默认1024KB" id="input-mem"> KB
+            <button onclick="setMem()">提交</button>
+        </div>
+
+        <div>
+            <div>设定作业所需空间大小：</div>
+            <input type="tel" minlength="1" maxlength="5" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')" placeholder="不小于1KB" id="input-job-size"> KB
+            <button onclick="newJob()">新建作业</button>
+        </div>
+
+        <div>
+            <div>分区表</div>
+            <table style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th>索引号n (2^n)</th>
+                        <th>分区大小(KB)</th>
+                        <th>分区数量</th>
+                        <th>已分配数量</th>
+                    </tr>
+                </thead>
+                <tbody id="fenqu"></tbody>
+            </table>
+        </div>
+
+        <div>
+            <div>作业信息表</div>
+            <table style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th>作业号</th>
+                        <th>所需内存(KB)</th>
+                        <th>所在分区的索引号</th>
+                    </tr>
+                </thead>
+                <tbody id="zuoye"></tbody>
+            </table>
+        </div>        
+    </div>
+
+
+
+    <script>
+        let buddySys = {
+            sysMem: 1024,
+            jobsIndex: 1,
+            idleTable: [
+                // {
+                //     n: 0, // 2^n的n,
+                //     num: 0, // 数量
+                //     allocated: 0
+                // }
+            ],
+            jobsTable:[
+                // {
+                //     id: 0,
+                //     size: 0,
+                //     index: 0 
+                // }
+            ]
+        }
+
+
+        init();
+        //------------------------------------
+        function init(){
+            buddySys.sysMem = 1024;
+            const n = 10;
+            document.querySelector('#current-mem-size').innerHTML = buddySys.sysMem + 'KB';
+            // let startIndex = 0;
+            for(let i=0;i<=n;i++){
+                if(i<n){
+                    buddySys.idleTable.push({
+                        n:i,
+                        num:0,
+                        allocated: 0
+                    })
+                }else
+                    buddySys.idleTable.push({
+                        n:i,
+                        num:1,
+                        allocated: 0
+                    })
+                renderTable();
+            }
+
+        }
+
+        function back(){
+            location.href = 'allocation.html';
+        }
+
+        function is2n(num){
+            return Number.isInteger(Math.log2(num));
+        }
+
+        function setMem(){
+            const value = document.querySelector('#input-mem').value;
+            if(buddySys.jobsTable.length>0){
+                alert('请保证内存不被任何内存占用后再设定此项目！')
+                return;
+            }
+            if(is2n(value)){
+                buddySys.sysMem = value;
+                const n = Math.log2(value);
+                buddySys.idleTable = []
+                for(let i=0;i<n;i++){
+                    if(i<n-1){
+                        buddySys.idleTable.push({
+                            n:i,
+                            num:0,
+                            allocated: 0
+                        })
+                    }else
+                        buddySys.idleTable.push({
+                            n:i,
+                            num:1,
+                            allocated: 0
+                        })
+                    renderTable();
+                }
+
+                alert('内存空间大小设定成功！');
+                document.querySelector('#current-mem-size').innerHTML = value + 'KB';
+            }else
+                alert('输入的内存大小必须为2的n次方！');
+        }
+
+        function newJob(){
+            const size = document.querySelector('#input-job-size').value;
+            if(size<0)
+                alert('输入不得小于0！');
+            else{
+                let flag = 1;
+                for(let i=1;;i++){
+                    if(Math.pow(2,i-1)<size && size<=Math.pow(2,i)){
+                        flag = i;
+                        break;
+                    }
+                }        
+                console.log('flag:', flag)   
+                if(buddySys.idleTable[flag].num>0 && buddySys.idleTable[flag].num > buddySys.idleTable[flag].allocated){
+                    buddySys.idleTable[flag].allocated++;
+                    buddySys.jobsTable.push({
+                        id: buddySys.jobsIndex++,
+                        size: size,
+                        index: flag
+                    })
+                    renderJobTable();
+                    renderTable();
+                    alert('分配成功！')
+                    return;
+                }else{
+                    for(let j=flag+1;j<buddySys.idleTable.length;j++){
+                        if(buddySys.idleTable[j].num>0){
+                            console.log(j)
+                            for(let k=j;k>flag;k--){
+                                buddySys.idleTable[k].num--;
+                                buddySys.idleTable[k-1].num += 2;
+                            }
+                            buddySys.idleTable[flag].allocated++;
+                            buddySys.jobsTable.push({
+                                id: buddySys.jobsIndex++,
+                                size: size,
+                                index: flag
+                            })
+                            renderJobTable();
+                            renderTable();
+                            alert('分配成功！')
+                            return;
+                        }
+                    }
+                }
+                alert('无法为作业分配内存！')
+            }
+        }
+
+        function renderTable(){
+            let tbody = document.querySelector('#fenqu');
+            tbody.innerHTML = '';
+            for(let i = 1; i < buddySys.idleTable.length; i++){
+                let newNode = document.createElement('tr');
+                newNode.innerHTML = `
+                    <td>${buddySys.idleTable[i].n}</td>
+                    <td>${Math.pow(2,buddySys.idleTable[i].n)}</td>
+                    <td>${buddySys.idleTable[i].num}</td>
+                    <td>${buddySys.idleTable[i].allocated}</td>
+                    `;
+                    tbody.appendChild(newNode);
+            }
+        }
+
+        function renderJobTable(){
+            let tbody = document.querySelector('#zuoye');
+            tbody.innerHTML = '';
+            for(let i = 0; i < buddySys.jobsTable.length; i++){
+                let newNode = document.createElement('tr');
+                newNode.innerHTML = `
+                    <td>${buddySys.jobsTable[i].id}</td>
+                    <td>${buddySys.jobsTable[i].size}</td>
+                    <td>${buddySys.jobsTable[i].index}</td>
+                    `;
+                    tbody.appendChild(newNode);
+            }
+        }
+    </script>
+</body>
+</html>

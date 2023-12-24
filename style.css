@@ -1,0 +1,304 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+.root{
+    width: 100%;
+    height: 100%;
+}
+
+.main-content{
+    width: 1300px;
+    height: 710px;
+    margin: 20px auto;
+    background-color: antiquewhite;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 标题部分 */
+.main-content .title{
+    height: 50px;
+    width: 1300px;
+    text-align: center;
+    font-size: 35px;
+    font-weight: bold;
+    font-family: '华文细黑';
+    padding: 5px 0;
+    border-bottom: .1px solid gray;
+}
+
+.main-content .title .emphasis{
+    color: red;
+    padding: 0 10px;
+}
+
+/* 配置栏 */
+.main-content .config-bar{
+    height: 50px;
+    width: 1300px;
+    border-bottom: .1px solid gray;
+
+    display: flex;
+    flex-direction: row;
+}
+
+/* 配置栏 - 设置条 */
+.main-content .config-bar .settings{
+    height: 50px;
+    width: 800px;
+    border-right: .1px solid gray;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.main-content .config-bar .settings .setting-title{
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.main-content .config-bar .settings .submmit-setting{
+    padding: 5px 10px;
+    margin-left: 15px;
+    border: 0.1px solid gray;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.main-content .config-bar .settings .submmit-setting:hover{
+    cursor: pointer;
+}
+
+.main-content .config-bar .settings #my-choice{
+    color: red;
+    font-weight: bold;
+}
+
+.disabled-input {
+    background-color: #f0f0f0; /* 设置背景颜色以模拟禁用状态 */
+    color: #999; /* 设置文字颜色 */
+    cursor: not-allowed; /* 鼠标样式表明不可交互 */
+  }
+
+
+/* 配置栏 - 选择条 */
+.main-content .config-bar .type-choice-bar{
+    height: 50px;
+    width: 500px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 18px;
+}
+
+.btn-fixed-allocate, .btn-variable-allocate, .btn-buddy-system{
+    padding: 5px 10px;
+    border: .5px solid gray;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.btn-fixed-allocate:hover, .btn-variable-allocate:hover, .btn-buddy-system:hover{
+    cursor: pointer;
+}
+
+
+
+
+/* 主体内容 */
+.this-choice-content{
+    padding: 10px 20px;
+    width: 1300px;
+    height: 610px;
+}
+
+/* 主体内容 - 默认页面 */
+.this-choice-content #default-content{
+    text-align: center;
+    font-family: '华文细黑';
+    font-style: italic;
+    font-size: 30px;
+
+    display: block;
+}
+
+/* 主体内容 - 固定式分区分配 & 可变式分区分配 */
+.this-choice-content #fixed-allocate, .this-choice-content #variable-allocate{
+    display: none;
+}
+
+.this-choice-content .fixed-allocate, .this-choice-content .variable-allocate{
+    display: flex;
+}
+
+/* 主体内容 - 固定式分区分配 */
+.this-choice-content #fixed-allocate{
+    display: none;
+}
+
+/* 主体内容 - 可变式分区分配 */
+/* .this-choice-content #variable-allocate{
+    display: block;
+} */
+
+/* 可变式分区分配 - 系统信息与作业内存分配 */
+.this-choice-content  .information{
+    width: 210px;
+    height: 560px;
+    padding: 10px 20px;
+    background-color: azure;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 可变式分区分配 - 系统信息 */
+.this-choice-content .information .system-infomation{
+    height: 100px;
+}
+
+.system-infomation .system-infomation-title, .allocate-jobs .allocate-jobs-title{
+    text-align: center;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+.this-choice-content  .information .system-infomation .system-infomation-content span{
+    color: red;
+}
+
+.this-choice-content  .information .allocate-jobs .allocate-alg-v{
+    margin-top: 10px;
+}
+
+.this-choice-content  .information .allocate-jobs #btn-submit-v, #btn-submit-f{
+    width: 80px;
+    margin-left: 60px;
+    margin-top: 10px;
+}
+
+
+/* 可变式分区分配 - 作业内存分配 */
+.this-choice-content  .information .allocate-jobs #job-need-memory{
+    margin-right: 5px;
+}
+
+/* 可变式分区分配 - 信息表 */
+.this-choice-content  .tables{
+    width: 740px;
+    height: 560px;
+    margin: 0 25px;
+    padding: 10px;
+    background-color: azure;
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+}
+
+/* 可变式分区分配 - 信息表 - 空闲分区表 */
+.this-choice-content  .tables .idle-partition-table{
+    flex-grow: 1;
+    /* justify-content: center; */
+}
+
+.this-choice-content  .tables .idle-partition-table .idle-partition-table-title{
+    text-align: center;
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+/* 可变式分区分配 - 信息表 - 作业信息表 */
+.this-choice-content  .tables .jobs-table{
+    flex-grow: 1;
+    /* justify-content: center; */
+}
+
+.this-choice-content  .tables .jobs-table .jobs-table-title{
+    text-align: center;
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+/* 可变式分区分配 - 分配展示 */
+.this-choice-content  .allocation-display-content{
+    width: 200px;
+    height: 580px;
+    background-color: azure;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.this-choice-content  .allocation-display{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.this-choice-content  .allocation-display-content .allocation-display-title{
+    text-align: center;
+    height: 30px;
+    font-weight: bold;
+}
+
+.this-choice-content  .allocation-display .note{
+    text-align: right;
+    padding-right: 3px;
+    width: 40px;
+    height: 530px;
+    display: flex;
+    flex-direction: column;
+}
+
+.this-choice-content  .allocation-display .note .start-index{
+    height: 20px;
+}
+
+.this-choice-content  .allocation-display .note .fill-blank{
+    height: 490px;
+}
+
+.this-choice-content  .allocation-display .note .end-index{
+    /* overflow: visible;
+    word-wrap: break-word; */
+    height: 20px;
+    /* line-height: 18px; */
+}
+
+.this-choice-content  .allocation-display #canvas-v, #canvas-f{
+    width: 140px;
+    height: 530px;
+    background-color: white;
+    border: 0.1px solid gray;
+}
+
+
+/* 使用说明 */
+#fixed-allocate .use-info{
+    margin-top: 30px;
+}
+.use-info{
+    font-size: 12px;
+    color: #4f4f4f;
+}
+
+#fixed-allocate .use-info  .use-info-title{
+    margin-bottom: 5px;
+}
+
+#variable-allocate .use-info .use-info-title{
+    margin-top: 10px;
+}
+
+.use-info .use-info-title{
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: black;
+}
+
+.use-info ol li{
+    margin-bottom: 6px;
+}

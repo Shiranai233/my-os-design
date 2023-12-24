@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allocation</title>
+
+    <link href="style.css" rel="stylesheet">
+    <link href="table.css" rel="stylesheet">
+    <script src="script.js"></script>
+
+</head>
+<body>
+    <div class="root">
+        <div class="main-content">
+            <!-- 标题 -->
+            <div class="title">连续分配存储管理演示</div>
+            <!-- 配置 -->
+            <div class="config-bar">
+                <!-- 设置 -->
+                <div class="settings">
+                    <span class="setting-title">设置栏</span>
+                    <div class="setting-memory">
+                        <span>内存空间：</span>
+                        <input type="tel" minlength="1" maxlength="5" placeholder="默认为1024KB" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')" id="input-memory">
+                        <span>KB</span>
+                        <div class="submmit-setting" style="display: inline-block;" onclick="submmit_setting()">确定</div>
+                    </div>
+                    <div class="my-choice">
+                        <span>当前选择：</span>
+                        <span id="my-choice">My Choice</span>
+                    </div>
+                </div>
+
+                <!-- 选择固定还是可变分配 -->
+                <div class="type-choice-bar">
+                    <div class="btn-fixed-allocate" onclick="check_fixed_allocate()"><span>固定式分区分配</span></div>
+                    <div class="btn-variable-allocate" onclick="check_variable_allocate()"><span>可变式分区分配</span></div>
+                    <div class="btn-buddy-system" onclick="goBuddySys()">伙伴系统</div>
+                </div>
+            </div>
+            
+            <!-- 内容 -->
+            <div class="this-choice-content">
+                <div id="default-content">
+                    请先选择分区分配方式
+                </div>
+                <!-- fixed & variable 分配 默认不显示 -->
+                <!-- ---------------------------------------------------- -->
+                <!-- 固定式分区分配 -->
+                <!-- ---------------------------------------------------- -->
+                <div id="fixed-allocate">
+                    <div class="fixed-allocate">
+                        <!-- 系统信息 分配作业 -->
+                        <div class="information">
+                            <div class="system-infomation">
+                                <div class="system-infomation-title">系统信息</div>
+                                <div class="system-infomation-content">
+                                    <div >内存空间：<span id="sysInfo-mem-f">1024 KB</span></div>
+                                    <div>内存占用：<span id="sysInfo-occupy-f">40%</span></div>
+                                </div>
+                            </div>
+                            <div class="allocate-jobs">
+                                <form>
+                                    <div class="allocate-jobs-title">新建作业</div>
+                                    <div>作业所需内存：<input type="tel" minlength="1" maxlength="5" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')" placeholder="不小于1KB" id="job-need-memory-f" name="job-need-memory-f">KB</div>
+                                    <button type="button" id="btn-submit-f" onclick="newJob_f()">新建</button>
+                                </form>
+                            </div>
+                            <div class="use-info">
+                                <div class="use-info-title">使用说明</div>
+                                <ol>
+                                    <li>固定式分区分配使用不等分的分区策略，从1KB开始，分区大小按2的n次幂增长，直到2的n次幂大于剩余的分区大小，剩余部分单独划区。</li>
+                                    <li>右侧的“内存空间分配示意”指的是作业在内存中的占用，展示内容包括起始地址（示意图左侧，从上到下地址从0开始递增）与占据的内存大小的信息
+                                        。填涂的颜色仅作区分，无任何含义。当该色块高度小于15px时，不显示作业名。</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <!-- 表 包括空闲分区表与作业表 -->
+                        <div class="tables">
+                            <!-- 空闲分区表 -->
+                            <div class="idle-partition-table">
+                                <div class="idle-partition-table-title">分区说明表</div>
+                                <table id="idle-partition-table-f">
+                                    <thead>
+                                        <tr>
+                                            <th>分区号</th>
+                                            <th>分区大小(KB)</th>
+                                            <th>分区始址(K)</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- <tr>
+                                            <td>1</td>
+                                            <td>50</td>
+                                            <td>85</td>
+                                            <td>空闲</td>
+                                        </tr> -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- 作业信息表 -->
+                            <div class="jobs-table">
+                                <div class="jobs-table-title">作业信息表</div>
+                                <table id="jobs-table-title-f">
+                                    <thead>
+                                        <tr>
+                                            <th>作业号</th>
+                                            <th>所需内存(KB)</th>
+                                            <th>内存始址(K)</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- <tr>
+                                            <td>1</td>
+                                            <td>23</td>
+                                            <td>10</td>
+                                            <td><a herf='javascript:' data-id='1'>终止</a></td>
+                                        </tr> -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- 分配展示 -->
+                        <div class="allocation-display-content">
+                            <div class="allocation-display-title">内存空间分配示意</div>
+                            <div class="allocation-display">
+                                <div class="note">
+                                    <div class="start-index">0</div>
+                                    <div class="fill-blank"></div>
+                                    <div class="end-index" id="display-end-index-f">1024</div>
+                                </div>
+                                <canvas id="canvas-f" width="140px" height="530px"></canvas>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <!-- ---------------------------------------------------- -->
+                <!-- 可变式分区分配 -->
+                <!-- ---------------------------------------------------- -->
+                <div id="variable-allocate">
+                    <div class="variable-allocate">
+                        <!-- 系统信息 分配作业 -->
+                        <div class="information">
+                            <div class="system-infomation">
+                                <div class="system-infomation-title">系统信息</div>
+                                <div class="system-infomation-content">
+                                    <div >内存空间：<span id="sysInfo-mem-v">1024 KB</span></div>
+                                    <div>内存占用：<span id="sysInfo-occupy-v">40%</span></div>
+                                </div>
+                            </div>
+                            <div class="allocate-jobs">
+                                <form>
+                                    <div class="allocate-jobs-title">新建作业</div>
+                                    <div>作业所需内存：<input type="tel" minlength="1" maxlength="5" onkeyup="this.value=this.value.replace(/\D/g,'')"  onafterpaste="this.value=this.value.replace(/\D/g,'')" placeholder="不小于1KB" id="job-need-memory-v" name="job-need-memory-v"> KB</div>
+                                    <div class="allocate-alg-v">
+                                        <div>选择分配算法：</div>
+                                        <div>
+                                            <input type="radio" name="alg_v" value="ff" class="alg_v_a"  checked onclick="alg_v_a_event()"> 首次适应
+                                            <input type="radio" name="alg_v" value="nf" id="alg_v_nf" onclick="alg_v_nf_event()"> 循环首次适应
+                                            <br>
+                                            <input type="radio" name="alg_v" value="bf" class="alg_v_a" onclick="alg_v_a_event()"> 最佳适应
+                                            <input type="radio" name="alg_v" value="wf" class="alg_v_a" onclick="alg_v_a_event()"> 最坏适应
+                                        </div>
+                                        <div>
+                                            <input type="checkbox" onclick="openRePosition()" id="open_rePos"> 启用动态重定位分区分配
+                                        </div>
+                                    </div>
+                                    <button type="button" id="btn-submit-v" onclick="newJob_v()">新建</button>
+                                </form>
+                            </div>
+                            <div class="use-info">
+                                <div class="use-info-title">使用说明</div>
+                                <ol>
+                                    <!-- <li>在可变式分区中，循环首次适应算法只能使用到内存空间不被任何作业占用为止，期间不能使用其他分配算法；在内存空间被作业占用、并且选择除
+                                        循环首次适应的其他算法时，也不能选择循环首次适应算法。
+                                    </li> -->
+                                    <li>在可变式分区分配中，本系统支持每一步都可以选择不同的分配算法，NF算法的指针指向的是上一次使用NF算法找到的空闲分区的下一个空闲分区。</li>
+                                    <li>右侧的“内存空间分配示意”指的是作业在内存中的占用，展示内容包括起始地址（示意图左侧，从上到下地址从0开始递增）与占据的内存大小的信息
+                                        。填涂的颜色仅作区分，无任何含义。当该色块高度小于15px时，不显示作业名。</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <!-- 表 包括空闲分区表与作业表 -->
+                        <div class="tables">
+                            <!-- 空闲分区表 -->
+                            <div class="idle-partition-table">
+                                <div class="idle-partition-table-title">空闲分区表</div>
+                                <table id="idle-partition-table-v">
+                                    <thead>
+                                        <tr>
+                                            <th>分区号</th>
+                                            <th>分区大小(KB)</th>
+                                            <th>分区始址(K)</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- <tr>
+                                            <td>1</td>
+                                            <td>50</td>
+                                            <td>85</td>
+                                            <td>空闲</td>
+                                        </tr> -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- 作业信息表 -->
+                            <div class="jobs-table">
+                                <div class="jobs-table-title">作业信息表</div>
+                                <table id="jobs-table-title-v">
+                                    <thead>
+                                        <tr>
+                                            <th>作业号</th>
+                                            <th>所需内存(KB)</th>
+                                            <th>内存始址(K)</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- <tr>
+                                            <td>1</td>
+                                            <td>23</td>
+                                            <td>10</td>
+                                            <td><a herf='javascript:' data-id='1'>终止</a></td>
+                                        </tr> -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- 分配展示 -->
+                        <div class="allocation-display-content">
+                            <div class="allocation-display-title">内存空间分配示意</div>
+                            <div class="allocation-display">
+                                <div class="note">
+                                    <div class="start-index">0</div>
+                                    <div class="fill-blank"></div>
+                                    <div class="end-index" id="display-end-index-v">1024</div>
+                                </div>
+                                <canvas id="canvas-v" width="140px" height="530px"></canvas>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 模态框 -->
+    <div class=""></div>
+    <script>
+        // const ctx = document.querySelector('#canvas').getContext('2d');
+        // ctx.fillStyle = '#0000FF';
+        // ctx.fillRect(0,100,140,20);
+        // ctx.fillText("Hello World", 10, 50);
+        init()
+    </script>
+</body>
+</html>
